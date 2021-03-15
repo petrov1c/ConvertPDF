@@ -33,12 +33,6 @@ def transform_jpg(data):
 
     img = Image.open(BytesIO(data))
 
-#    label = img.crop((790, 250, 955, 300)) # Хохлома черная
-#    label = img.crop((790, 200, 955, 290)) # Хохлома белая
-#    label = img.crop((145, 174, 250, 212)) # Бюджет
-#    label = img.crop((155, 163, 324, 210)) # Florus
-#    label = img.crop((150, 106, 320, 175)) # bdb
-
     picture = img.crop((0, 340, img.size[0], img.size[1]))
 
     #    rotate = label.rotate(180)
@@ -46,5 +40,4 @@ def transform_jpg(data):
 
 #    return jsonify({'label': PILtoBase64(rotate)})
     return jsonify({'picture': PILtoBase64(picture)})
-
 #    return jsonify({'picture': PILtoBase64(picture), 'label': PILtoBase64(label)})
