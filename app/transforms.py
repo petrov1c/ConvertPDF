@@ -24,7 +24,8 @@ def pdf_to_jpg(data):
 
     if not fault:
 
-        return jsonify([{'picture': PILtoBase64(im)} for im in images])
+        pictures = [im.crop((0, 0, im.size[0], im.size[1]/2)) for im in images]
+        return jsonify([{'picture': PILtoBase64(im)} for im in pictures])
     else:
         return jsonify({'error': descriptionError})
 
