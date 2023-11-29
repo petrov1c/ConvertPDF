@@ -14,7 +14,9 @@ def convert_to_base64(image):
 
 
 def fix_pdf(data):
-    pdf_reader = PdfReader(data)
+    stream = BytesIO(data)
+
+    pdf_reader = PdfReader(stream)
     pdf_writer = PdfWriter()
 
     for page in pdf_reader.pages:
