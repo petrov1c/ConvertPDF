@@ -1,43 +1,40 @@
 from pdf2image import convert_from_bytes
+from PyPDF2 import PdfReader
+from PyPDF2 import PdfWriter
 from flask import jsonify
-
-from PIL import Image
 
 import base64
 from io import BytesIO
 
-def PILtoBase64(image):
+
+def convert_to_base64(image):
     buffered = BytesIO()
     image.save(buffered, format="JPEG")
     return base64.b64encode(buffered.getvalue()).decode("UTF-8")
 
-def pdf_to_jpg(data):
 
-    fault = False
-    descriptionError = ''
+def fix_pdf(data):
+    pdf_reader = PdfReader(data)
+    pdf_writer = PdfWriter()
+
+    for page in pdf_reader.pages:
+        pdf_writer.add_page(page)
+
+    buffered = BytesIO()
+    pdf_writer.write(buffered)
+
+    buffered = base64.b64encode(buffered.getvalue()).decode("UTF-8")
+
+    return jsonify({'pdf': buffered})
+
+
+def pdf_to_jpg(data):
 
     try:
         images = convert_from_bytes(data)
+        pictures = [im.crop((0, 0, im.size[0], im.size[1])) for im in images]
+        return jsonify([{'picture': convert_to_base64(im)} for im in pictures])
+
     except Exception as exc:
-        fault = True
-        descriptionError = 'не получилось преобразовать pdf в jpg'+  str(exc)
-
-    if not fault:
-
-        pictures = [im.crop((0, 0, im.size[0], im.size[1]/2)) for im in images]
-        return jsonify([{'picture': PILtoBase64(im)} for im in pictures])
-    else:
-        return jsonify({'error': descriptionError})
-
-def transform_jpg(data):
-
-    img = Image.open(BytesIO(data))
-
-    picture = img.crop((0, 340, img.size[0], img.size[1]))
-
-    #    rotate = label.rotate(180)
-
-
-#    return jsonify({'label': PILtoBase64(rotate)})
-    return jsonify({'picture': PILtoBase64(picture)})
-#    return jsonify({'picture': PILtoBase64(picture), 'label': PILtoBase64(label)})
+        description_error = f'не получилось преобразовать pdf в jpg: {str(exc)}'
+        return jsonify({'error': description_error})
