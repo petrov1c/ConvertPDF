@@ -23,7 +23,7 @@ def index():
 
 
 @app.route('/ping')
-def test():
+def ping():
     return "It works!"
 
 
