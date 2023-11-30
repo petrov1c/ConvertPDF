@@ -22,7 +22,7 @@ def index():
     return render_template("index.html", title='Home', user=user, posts=posts)
 
 
-@app.route('/test')
+@app.route('/ping')
 def test():
     return "It works!"
 
