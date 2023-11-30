@@ -34,7 +34,7 @@ def pdf_to_jpg(data):
 
     try:
         images = convert_from_bytes(data)
-        pictures = [im.crop((0, 0, im.size[0], im.size[1])) for im in images]
+        pictures = [im.crop((0, 0, im.size[0], im.size[1]//2)) for im in images]
         return jsonify([{'picture': convert_to_base64(im)} for im in pictures])
 
     except Exception as exc:
