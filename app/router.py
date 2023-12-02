@@ -35,3 +35,8 @@ def pdf_to_jpg():
 @app.route('/fix_pdf', methods=["POST"])
 def fix_pdf():
     return transforms.fix_pdf(request.data)
+
+
+@app.route('/resize', methods=["POST"])
+def resize():
+    return transforms.resize(request.json)
