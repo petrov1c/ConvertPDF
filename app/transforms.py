@@ -15,14 +15,20 @@ def convert_to_base64(image):
     return base64.b64encode(buffered.getvalue()).decode("UTF-8")
 
 
-def fix_pdf(data):
-    stream = BytesIO(data)
-
-    pdf_reader = PdfReader(stream)
+def fix_pdf(data, mode='to_jpg'):
     pdf_writer = PdfWriter()
+    if mode == 'to_jpg':
+        images = convert_from_bytes(data, grayscale=True)
+        for image in images:
+            buffered = BytesIO()
+            image.save(buffered, format="pdf")
 
-    for page in pdf_reader.pages:
-        pdf_writer.add_page(page)
+            pdf_reader = PdfReader(buffered)
+            pdf_writer.append_pages_from_reader(pdf_reader)
+    else:
+        stream = BytesIO(data)
+        pdf_reader = PdfReader(stream)
+        pdf_writer.append_pages_from_reader(pdf_reader)
 
     buffered = BytesIO()
     pdf_writer.write(buffered)
