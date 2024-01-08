@@ -40,3 +40,8 @@ def fix_pdf():
 @app.route('/resize', methods=["POST"])
 def resize():
     return transforms.resize(request.json)
+
+
+@app.route('/delete_background', methods=["POST"])
+def delete_background():
+    return transforms.delete_background(request.json)

@@ -79,7 +79,44 @@ def resize(data):
 
     encode_param = [int(cv2.IMWRITE_JPEG_QUALITY), 85]
 
-    result, imgencode = cv2.imencode(".jpg", new_image, encode_param)
-    img_data = base64.b64encode(imgencode).decode("UTF-8")
+    result, img_encode = cv2.imencode(".jpg", new_image, encode_param)
+    img_data = base64.b64encode(img_encode).decode("UTF-8")
+
+    return jsonify({'image': img_data})
+
+
+def delete_background(data):
+
+    image = base64.b64decode(data['image'])
+    image = cv2.imdecode(np.frombuffer(image, np.uint8), cv2.IMREAD_COLOR)
+
+    new_image = np.array(image)
+
+    for idx in range(1, new_image.shape[0]):
+        if new_image[:idx].sum() != 255*new_image[:idx].size:
+            new_image = new_image[idx-1:]
+            break
+
+    height = new_image.shape[0]
+    for idx in range(1, height):
+        if new_image[height-idx:].sum() != 255*new_image[height-idx:].size:
+            new_image = new_image[:height-idx+1]
+            break
+
+    for idx in range(1, new_image.shape[1]):
+        if new_image[:, idx].sum() != 255*new_image[:, idx].size:
+            new_image = new_image[:, idx-1:]
+            break
+
+    width = new_image.shape[1]
+    for idx in range(1, width):
+        if new_image[:, width-idx:].sum() != 255*new_image[:, width-idx:].size:
+            new_image = new_image[:, :width-idx+1]
+            break
+
+    encode_param = [int(cv2.IMWRITE_JPEG_QUALITY), 85]
+
+    result, img_encode = cv2.imencode(".jpg", new_image, encode_param)
+    img_data = base64.b64encode(img_encode).decode("UTF-8")
 
     return jsonify({'image': img_data})
