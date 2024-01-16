@@ -2,17 +2,13 @@ from pdf2image import convert_from_bytes
 from PyPDF2 import PdfReader
 from PyPDF2 import PdfWriter
 from flask import jsonify
+
 import cv2
 import numpy as np
 
 import base64
 from io import BytesIO
-
-
-def convert_to_base64(image):
-    buffered = BytesIO()
-    image.save(buffered, format="JPEG")
-    return base64.b64encode(buffered.getvalue()).decode("UTF-8")
+from src import utils
 
 
 def fix_pdf(data, mode='to_jpg'):
@@ -39,21 +35,17 @@ def fix_pdf(data, mode='to_jpg'):
 
 
 def pdf_to_jpg(data):
-
     try:
         images = convert_from_bytes(data)
         pictures = [im.crop((0, 0, im.size[0], im.size[1]//2)) for im in images]
-        return jsonify([{'picture': convert_to_base64(im)} for im in pictures])
-
+        return jsonify([{'picture': utils.pil_to_base64(im)} for im in pictures])
     except Exception as exc:
         description_error = f'не получилось преобразовать pdf в jpg: {str(exc)}'
         return jsonify({'error': description_error})
 
 
 def resize(data):
-
-    img = base64.b64decode(data['image'])
-    img = cv2.imdecode(np.frombuffer(img, np.uint8), cv2.IMREAD_COLOR)
+    img = utils.base64_cv2(data['image'])
 
     height, width = img.shape[:2]
 
@@ -77,46 +69,26 @@ def resize(data):
         start_point = (data['width']-new_width)//2
         new_image[:, start_point:start_point+new_width, :] = img
 
-    encode_param = [int(cv2.IMWRITE_JPEG_QUALITY), 85]
-
-    result, img_encode = cv2.imencode(".jpg", new_image, encode_param)
-    img_data = base64.b64encode(img_encode).decode("UTF-8")
-
+    img_data = utils.cv2_base64(new_image)
     return jsonify({'image': img_data})
 
 
 def delete_background(data):
+    image = utils.base64_cv2(data['image'])
+    new_image = utils.delete_background(image)
 
-    image = base64.b64decode(data['image'])
-    image = cv2.imdecode(np.frombuffer(image, np.uint8), cv2.IMREAD_COLOR)
+    return jsonify({'image': utils.cv2_base64(new_image)})
 
-    new_image = np.array(image)
 
-    for idx in range(1, new_image.shape[0]):
-        if new_image[:idx].sum() != 255*new_image[:idx].size:
-            new_image = new_image[idx-1:]
-            break
+def super_resolution(data):
+    image = utils.base64_cv2(data['image'])
+    new_image = utils.super_resolution(image)
 
-    height = new_image.shape[0]
-    for idx in range(1, height):
-        if new_image[height-idx:].sum() != 255*new_image[height-idx:].size:
-            new_image = new_image[:height-idx+1]
-            break
+    return jsonify({'image': utils.cv2_base64(new_image)})
 
-    for idx in range(1, new_image.shape[1]):
-        if new_image[:, idx].sum() != 255*new_image[:, idx].size:
-            new_image = new_image[:, idx-1:]
-            break
 
-    width = new_image.shape[1]
-    for idx in range(1, width):
-        if new_image[:, width-idx:].sum() != 255*new_image[:, width-idx:].size:
-            new_image = new_image[:, :width-idx+1]
-            break
+def get_quality(data):
+    image = utils.base64_cv2(data['image'])
+    quality = utils.get_quality(image)
 
-    encode_param = [int(cv2.IMWRITE_JPEG_QUALITY), 85]
-
-    result, img_encode = cv2.imencode(".jpg", new_image, encode_param)
-    img_data = base64.b64encode(img_encode).decode("UTF-8")
-
-    return jsonify({'image': img_data})
+    return jsonify({'quality': quality})

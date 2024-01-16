@@ -1,5 +1,5 @@
-from app import app
-from app import transforms
+from src import app
+from src import transforms
 
 from flask import request
 from flask import render_template
@@ -45,3 +45,13 @@ def resize():
 @app.route('/delete_background', methods=["POST"])
 def delete_background():
     return transforms.delete_background(request.json)
+
+
+@app.route('/super_resolution', methods=["POST"])
+def super_resolution():
+    return transforms.super_resolution(request.json)
+
+
+@app.route('/get_quality', methods=["POST"])
+def get_quality():
+    return transforms.get_quality(request.json)
