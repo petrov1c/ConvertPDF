@@ -92,3 +92,23 @@ def get_quality(data):
     quality = utils.get_quality(image)
 
     return jsonify({'quality': quality})
+
+
+def pipeline(data):
+    image = utils.base64_cv2(data['image'])
+    image = utils.delete_background(image, threshold=data['background_threshold'])
+    image = utils.super_resolution(image)
+    width = image.shape[1]
+    height = image.shape[0]
+    if 'resize_width' in data and width > data['resize_width']:
+        new_width = data['resize_width']
+        new_height = int(new_width/width*height)
+        image = cv2.resize(np.asarray(image), (new_width, new_height), interpolation=cv2.INTER_AREA)
+
+    return jsonify(
+        {
+            'image': utils.cv2_base64(image),
+            'quality': utils.get_quality(image),
+            'guid': data['guid'],
+        }
+    )

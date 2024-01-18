@@ -36,14 +36,14 @@ def delete_background(image: np.ndarray, threshold: int = 245) -> np.ndarray:
             break
 
     for idx in range(1, mask.shape[1]):
-        if not np.all(new_image[:, idx]):
+        if not np.all(mask[:, idx]):
             mask = mask[:, idx - 1:]
             new_image = new_image[:, idx-1:]
             break
 
     width = mask.shape[1]
     for idx in range(1, width):
-        if not np.all(new_image[:, width-idx]):
+        if not np.all(mask[:, width-idx]):
             mask = mask[:, :width - idx + 1]
             new_image = new_image[:, :width-idx+1]
             break

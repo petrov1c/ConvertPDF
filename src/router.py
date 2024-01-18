@@ -55,3 +55,8 @@ def super_resolution():
 @app.route('/get_quality', methods=["POST"])
 def get_quality():
     return transforms.get_quality(request.json)
+
+
+@app.route('/pipeline', methods=["POST"])
+def pipeline():
+    return transforms.pipeline(request.json)
