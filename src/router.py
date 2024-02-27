@@ -32,6 +32,11 @@ def pdf_to_jpg():
     return transforms.pdf_to_jpg(request.data)
 
 
+@app.route('/jpg_to_pdf', methods=["POST"])
+def jpg_to_pdf():
+    return transforms.jpg_to_pdf(request.json)
+
+
 @app.route('/fix_pdf', methods=["POST"])
 def fix_pdf():
     return transforms.fix_pdf(request.data)

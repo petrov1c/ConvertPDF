@@ -44,6 +44,16 @@ def pdf_to_jpg(data):
         return jsonify({'error': description_error})
 
 
+def jpg_to_pdf(data):
+    image = utils.base64_to_pil(data['image'])
+
+    buffered = BytesIO()
+    image.save(buffered, format="pdf")
+
+    buffered = base64.b64encode(buffered.getvalue()).decode("UTF-8")
+    return jsonify({'pdf': buffered})
+
+
 def resize(data):
     img = utils.base64_cv2(data['image'])
 
