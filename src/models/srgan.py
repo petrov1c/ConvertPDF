@@ -3,7 +3,7 @@ from RealESRGAN import RealESRGAN
 
 
 class SRGAN():
-    def __init__(self, scale: int = 4):
+    def __init__(self, scale: int = 2):
         device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         self.scale = scale  #@param ["2", "4", "8"] {allow-input: false}
         self._model = RealESRGAN(device, scale=scale)

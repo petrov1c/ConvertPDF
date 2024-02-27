@@ -18,3 +18,5 @@ realesrgan
 flask
 pdf2image
 pypdf2
+requests
+pillow

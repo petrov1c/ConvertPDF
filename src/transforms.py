@@ -95,9 +95,30 @@ def get_quality(data):
 
 
 def pipeline(data):
+    if 'command' in data:
+        if data['command'] == 'add_frame_on_image':
+            from src.models.add_image_on_frame import run_add_image_on_frame
+            image = run_add_image_on_frame(data)
+            return jsonify(
+                {
+                    'image': image
+                }
+            )
+        elif data['command'] == 'make_offer':
+            from src.models.make_offers import make_offers
+            offers = make_offers(data)
+            return jsonify(offers)
+
     image = utils.base64_cv2(data['image'])
+    width = image.shape[1]
+    height = image.shape[0]
+    if 'resize_width' in data and width > data['resize_width']:
+        new_width = data['resize_width']
+        new_height = int(new_width/width*height)
+        image = cv2.resize(np.asarray(image), (new_width, new_height), interpolation=cv2.INTER_AREA)
+
     image = utils.delete_background(image, threshold=data['background_threshold'])
-    image = utils.super_resolution(image)
+    image = utils.super_resolution(image, data['scale'])
     width = image.shape[1]
     height = image.shape[0]
     if 'resize_width' in data and width > data['resize_width']:

@@ -1,6 +1,7 @@
 import base64
 from io import BytesIO
 from typing import Optional
+from PIL import Image
 
 import cv2
 import numpy as np
@@ -51,6 +52,13 @@ def delete_background(image: np.ndarray, threshold: int = 245) -> np.ndarray:
     return new_image
 
 
+def base64_to_pil(base64_str):
+    pil_img = base64.b64decode(base64_str)
+    pil_img = BytesIO(pil_img)
+    pil_img = Image.open(pil_img)
+
+    return pil_img
+
 def pil_to_base64(pil_img, quality: int = JPEG_QUALITY):
     # PIL по умолчанию сохраняет с 75% качеством,
     # чтобы сохранить картинку как есть и при этом использовать сжатие jpeg надо сохранять с 95%
@@ -73,8 +81,8 @@ def cv2_base64(cv2_img, quality: int = JPEG_QUALITY):
     return base64.b64encode(img_encode).decode("UTF-8")
 
 
-def super_resolution(image, resize_width: Optional[int] = None):
-    srgan = SRGAN()
+def super_resolution(image, scale: Optional[int] = None, resize_width: Optional[int] = None):
+    srgan = SRGAN(scale)
     sr_image = srgan(image)
     if isinstance(resize_width, int) and sr_image.width > resize_width:
         resize_height = int(resize_width/sr_image.width*sr_image.height)

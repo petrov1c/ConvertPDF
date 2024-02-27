@@ -6,3 +6,4 @@
 .idea/
 /config/config.yml
 /weights/
+/data/
